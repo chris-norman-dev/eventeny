@@ -91,7 +91,7 @@ function formatDate(iso: string): string {
               />
             </td>
             <td class="VendorTable__td VendorTable__td--name">
-              <a href={`/vendor/${v.id}`} class="VendorTable__name-link">
+              <a href={`${import.meta.env.BASE_URL}vendor/${v.id}`} class="VendorTable__name-link">
                 <span class="VendorTable__avatar" aria-hidden="true">
                   {v.name.charAt(0)}
                 </span>
@@ -118,7 +118,7 @@ function formatDate(iso: string): string {
             </td>
             <td class="VendorTable__td VendorTable__td--actions">
               <a
-                href={`/vendor/${v.id}`}
+                href={`${import.meta.env.BASE_URL}vendor/${v.id}`}
                 class="VendorTable__view-btn"
                 aria-label={`View application from ${v.name}`}
               >
@@ -557,6 +557,7 @@ function formatDate(iso: string): string {
   import type { Vendor } from "@data/vendors";
 
   const PAGE_SIZE = 10;
+  const BASE = import.meta.env.BASE_URL;
 
   type SortKey = "name" | "appliedDate";
   type SortDir = "asc" | "desc" | "none";
@@ -673,7 +674,7 @@ function formatDate(iso: string): string {
     <input type="checkbox" class="VendorTable__checkbox VendorTable__row-check" aria-label="Select ${escHtml(v.name)}" data-vendor-id="${v.id}"${isSelected ? " checked" : ""} />
   </td>
   <td class="VendorTable__td VendorTable__td--name">
-    <a href="/vendor/${v.id}" class="VendorTable__name-link">
+    <a href="${BASE}vendor/${v.id}" class="VendorTable__name-link">
       <span class="VendorTable__avatar" aria-hidden="true">${escHtml(v.name.charAt(0))}</span>
       <span class="VendorTable__name-text">
         <span class="VendorTable__name">${escHtml(v.name)}</span>
@@ -691,7 +692,7 @@ function formatDate(iso: string): string {
   </td>
   <td class="VendorTable__td VendorTable__td--date">${formatDate(v.appliedDate)}</td>
   <td class="VendorTable__td VendorTable__td--actions">
-    <a href="/vendor/${v.id}" class="VendorTable__view-btn" aria-label="View application from ${escHtml(v.name)}">View</a>
+    <a href="${BASE}vendor/${v.id}" class="VendorTable__view-btn" aria-label="View application from ${escHtml(v.name)}">View</a>
   </td>
 </tr>`;
   }
@@ -716,7 +717,7 @@ function formatDate(iso: string): string {
   </div>
   <div class="VendorCard__footer">
     <span class="VendorCard__date">Applied ${formatDate(v.appliedDate)}</span>
-    <a href="/vendor/${v.id}" class="VendorTable__view-btn">View</a>
+    <a href="${BASE}vendor/${v.id}" class="VendorTable__view-btn">View</a>
   </div>
 </div>`;
   }

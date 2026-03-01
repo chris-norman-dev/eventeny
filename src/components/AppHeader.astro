@@ -14,17 +14,17 @@ const { activePage = "applications" } = Astro.props;
     </div>
     <nav class="AppHeader__nav" aria-label="Main navigation">
       <a
-        href="/"
+        href={import.meta.env.BASE_URL}
         class={`AppHeader__nav-link${activePage === "applications" ? " AppHeader__nav-link--active" : ""}`}
         aria-current={activePage === "applications" ? "page" : undefined}
       >Applications</a>
       <a
-        href="/"
+        href={import.meta.env.BASE_URL}
         class={`AppHeader__nav-link${activePage === "events" ? " AppHeader__nav-link--active" : ""}`}
         aria-current={activePage === "events" ? "page" : undefined}
       >Events</a>
       <a
-        href="/"
+        href={import.meta.env.BASE_URL}
         class={`AppHeader__nav-link${activePage === "reports" ? " AppHeader__nav-link--active" : ""}`}
         aria-current={activePage === "reports" ? "page" : undefined}
       >Reports</a>

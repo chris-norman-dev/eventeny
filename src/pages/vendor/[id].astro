@@ -60,7 +60,7 @@ if (vendor.status !== "Awaiting") {
       <div class="ProfileMain__inner">
         <nav class="Breadcrumb" aria-label="Breadcrumb">
           <ol class="Breadcrumb__list">
-            <li><a href="/" class="Breadcrumb__link">Applications</a></li>
+            <li><a href={import.meta.env.BASE_URL} class="Breadcrumb__link">Applications</a></li>
             <li aria-hidden="true" class="Breadcrumb__sep">›</li>
             <li class="Breadcrumb__current" aria-current="page">{vendor.businessName}</li>
           </ol>
