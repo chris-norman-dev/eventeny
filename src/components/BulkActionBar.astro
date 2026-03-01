@@ -28,6 +28,13 @@
     </button>
     <button
       type="button"
+      class="BulkActionBar__btn BulkActionBar__btn--waitlist"
+      id="bulk-waitlist"
+    >
+      Waitlist
+    </button>
+    <button
+      type="button"
       class="BulkActionBar__btn BulkActionBar__btn--export"
       id="bulk-export"
       aria-label="Export selected vendors to CSV"
@@ -99,6 +106,11 @@
       outline: 2px solid var(--white);
       outline-offset: 2px;
     }
+  }
+
+  .BulkActionBar__btn--waitlist {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
   }
 
   .BulkActionBar__btn--export {

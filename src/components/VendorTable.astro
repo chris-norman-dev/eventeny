@@ -919,27 +919,25 @@ function formatDate(iso: string): string {
 
   document.getElementById("bulk-export")?.addEventListener("click", exportCSV);
 
-  document.getElementById("bulk-approve")?.addEventListener("click", () => {
+  function bulkSetStatus(status: Vendor["status"]) {
+    const saved = JSON.parse(localStorage.getItem("vendor-status-overrides") ?? "{}") as Record<string, string>;
     selectedIds.forEach((id) => {
       const v = vendors.find((x) => x.id === id);
-      if (v) v.status = "Approved";
+      if (v) {
+        v.status = status;
+        saved[id] = status;
+      }
     });
+    localStorage.setItem("vendor-status-overrides", JSON.stringify(saved));
     selectedIds.clear();
     applyFilters();
     updateBulkBar();
     updateStatCards();
-  });
+  }
 
-  document.getElementById("bulk-reject")?.addEventListener("click", () => {
-    selectedIds.forEach((id) => {
-      const v = vendors.find((x) => x.id === id);
-      if (v) v.status = "Rejected";
-    });
-    selectedIds.clear();
-    applyFilters();
-    updateBulkBar();
-    updateStatCards();
-  });
+  document.getElementById("bulk-approve")?.addEventListener("click", () => bulkSetStatus("Approved"));
+  document.getElementById("bulk-reject")?.addEventListener("click", () => bulkSetStatus("Rejected"));
+  document.getElementById("bulk-waitlist")?.addEventListener("click", () => bulkSetStatus("Waitlisted"));
 
   document.getElementById("bulk-clear")?.addEventListener("click", () => {
     selectedIds.clear();
@@ -977,12 +975,28 @@ function formatDate(iso: string): string {
   const wrap = document.querySelector(".VendorTable__wrap");
   if (wrap) wrap.after(cardsContainer);
 
-  const savedOverrides = JSON.parse(localStorage.getItem("vendor-status-overrides") ?? "{}") as Record<string, string>;
-  vendors.forEach((v) => {
-    if (savedOverrides[v.id]) v.status = savedOverrides[v.id] as Vendor["status"];
-  });
+  function applyStoredOverrides() {
+    const overrides = JSON.parse(localStorage.getItem("vendor-status-overrides") ?? "{}") as Record<string, string>;
+    vendors.forEach((v) => {
+      if (overrides[v.id]) v.status = overrides[v.id] as Vendor["status"];
+    });
+  }
 
-  renderPagination(vendors.length);
-  attachRowListeners();
+  applyStoredOverrides();
+  const hasOverrides = Object.keys(JSON.parse(localStorage.getItem("vendor-status-overrides") ?? "{}")).length > 0;
+  if (hasOverrides) {
+    renderTable();
+  } else {
+    renderPagination(vendors.length);
+    attachRowListeners();
+  }
   updateStatCards();
+
+  window.addEventListener("pageshow", (e) => {
+    if (e.persisted) {
+      applyStoredOverrides();
+      applyFilters();
+      updateStatCards();
+    }
+  });
 </script>

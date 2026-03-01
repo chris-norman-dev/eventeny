@@ -123,7 +123,7 @@ Manual testing across three breakpoints in browser DevTools, keyboard-only navig
 **Collaboration Plan:**
 The component structure, naming conventions, and design token approach are documented here so another engineer could pick up any file and understand its scope without a separate handoff session.
 
-**Intentional Functionalit:**
+**Intentional Functionality:**
 Export selected to CSV was added beyond the spec because event organizers routinely need to share application subsets with co-organizers or paste them into approval workflows. It requires no backend and delivers immediate, practical value.
 
 ---
