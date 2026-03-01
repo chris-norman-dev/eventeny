@@ -4,7 +4,7 @@
 <div
   class="BulkActionBar"
   id="bulk-action-bar"
-  role="toolbar"
+  role="group"
   aria-label="Bulk actions for selected vendors"
   hidden
 >
@@ -93,6 +93,11 @@
     &:hover {
       background: rgba(255, 255, 255, 0.25);
       border-color: rgba(255, 255, 255, 0.7);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--white);
+      outline-offset: 2px;
     }
   }
 

@@ -15,7 +15,6 @@ export default defineConfig({
       cssCodeSplit: false,
       rollupOptions: {
         output: {
-          entryFileNames: 'assets/script.js',
           assetFileNames: 'assets/[name][extname]',
         },
       },

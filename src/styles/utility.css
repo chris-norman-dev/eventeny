@@ -22,8 +22,10 @@
   font-weight: 600;
   text-decoration: none;
 
-  &:focus {
+  &:focus-visible {
     top: 1rem;
+    outline: 2px solid var(--white);
+    outline-offset: 2px;
   }
 }
 

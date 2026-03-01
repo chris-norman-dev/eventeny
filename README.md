@@ -99,29 +99,31 @@ Components communicate through a `vendor:filter` custom event dispatched on `doc
 
 Every interactive element is reachable by keyboard. Screen reader support is provided through `role="search"`, `aria-expanded`, `aria-controls`, `aria-sort`, `aria-live`, and `aria-busy` attributes. Color is never the sole status indicator. The filter panel closes on Escape and traps focus while open on mobile.
 
+HTML output is validated against the W3C Nu HTML Checker with no errors.
+
 ---
 
-## Topics Discussed
+## Overview of Deliverables
 
-**Objective**
+**Objective:**
 Build a polished, accessible vendor application management UI that demonstrates component thinking, design fidelity, and attention to real-world organizer workflows.
 
-**Research Tactics**
+**Research Tactics:**
 Component behavior was informed by common event management patterns and WCAG 2.1 AA guidelines.
 
-**Code Structure**
+**Code Structure:**
 Components are scoped by responsibility and co-locate their markup, styles, and behavior in single Astro files. CSS follows BEM naming to keep specificity flat and intent explicit. Cross-component state uses custom DOM events (`vendor:filter`) rather than a framework store, keeping the dependency surface minimal. See the Code Conventions section for a full breakdown of the patterns used.
 
-**Accessibility Strategy**
+**Accessibility Strategy:**
 ARIA attributes describe live regions, sort state, and panel visibility. Focus management is handled explicitly for the filter drawer. All icon-only controls carry visible labels.
 
-**Testing Strategy**
+**Testing Strategy:**
 Manual testing across three breakpoints in browser DevTools, keyboard-only navigation from search through pagination, and VoiceOver on Safari to verify live region announcements.
 
-**Collaboration Plan**
+**Collaboration Plan:**
 The component structure, naming conventions, and design token approach are documented here so another engineer could pick up any file and understand its scope without a separate handoff session.
 
-**Intentional Functionality**
+**Intentional Functionalit:**
 Export selected to CSV was added beyond the spec because event organizers routinely need to share application subsets with co-organizers or paste them into approval workflows. It requires no backend and delivers immediate, practical value.
 
 ---

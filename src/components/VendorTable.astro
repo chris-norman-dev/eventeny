@@ -740,6 +740,13 @@ function formatDate(iso: string): string {
         syncSelectAll();
         updateBulkBar();
       });
+      cb.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          cb.checked = !cb.checked;
+          cb.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      });
     });
   }
 
@@ -846,6 +853,15 @@ function formatDate(iso: string): string {
       currentFilters.category = detail.category as string;
     }
     applyFilters();
+  });
+
+  document.getElementById("select-all")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const cb = e.target as HTMLInputElement;
+      cb.checked = !cb.checked;
+      cb.dispatchEvent(new Event("change", { bubbles: true }));
+    }
   });
 
   document.getElementById("select-all")?.addEventListener("change", (e) => {
