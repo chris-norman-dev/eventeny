@@ -1,0 +1,62 @@
+---
+import type { VendorStatus, PaymentStatus } from "@data/vendors";
+
+interface Props {
+  status: VendorStatus | PaymentStatus;
+  type?: "status" | "payment";
+}
+
+const { status, type = "status" } = Astro.props;
+
+const key = type === "payment"
+  ? status === "Paid" ? "paid" : "notpaid"
+  : status.toLowerCase();
+---
+
+<span class={`StatusBadge StatusBadge--${key}`}>{status}</span>
+
+<style is:global>
+  .StatusBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1875rem 0.625rem;
+    border-radius: var(--radius-pill);
+    font: 500 0.8125rem / 1.4 var(--font);
+    white-space: nowrap;
+  }
+
+  .StatusBadge--approved {
+    background: var(--status-approved-bg);
+    color: var(--status-approved-text);
+  }
+
+  .StatusBadge--waitlisted {
+    background: var(--status-waitlisted-bg);
+    color: var(--status-waitlisted-text);
+  }
+
+  .StatusBadge--withdrawn {
+    background: var(--status-withdrawn-bg);
+    color: var(--status-withdrawn-text);
+  }
+
+  .StatusBadge--awaiting {
+    background: var(--status-awaiting-bg);
+    color: var(--status-awaiting-text);
+  }
+
+  .StatusBadge--rejected {
+    background: var(--status-rejected-bg);
+    color: var(--status-rejected-text);
+  }
+
+  .StatusBadge--paid {
+    background: var(--payment-paid-bg);
+    color: var(--payment-paid-text);
+  }
+
+  .StatusBadge--notpaid {
+    background: var(--payment-notpaid-bg);
+    color: var(--payment-notpaid-text);
+  }
+</style>

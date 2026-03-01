@@ -1,0 +1,46 @@
+:root {
+  --font: "Plus Jakarta Sans", sans-serif;
+
+  --teal: #038580;
+  --teal-light: #03858019;
+  --teal-hover: #026e6a;
+  --dark: #222222;
+  --muted: #5e6463;
+  --white: #ffffff;
+  --border: #d1d5d4;
+  --border-focus: #038580;
+  --bg-page: #f0f4f4;
+  --bg-surface: #ffffff;
+  --bg-row-hover: #f9fafa;
+  --bg-row-selected: #f0f8f8;
+  --info-bg: #e9f1f9;
+  --info-icon: #2478c8;
+  --ui-icon: #3f4242;
+
+  --status-approved-bg: #e3f5ec;
+  --status-approved-text: #1a7a4a;
+  --status-waitlisted-bg: #fef3e2;
+  --status-waitlisted-text: #a05c00;
+  --status-withdrawn-bg: #f5f5f5;
+  --status-withdrawn-text: #5e6463;
+  --status-awaiting-bg: #e9f1f9;
+  --status-awaiting-text: #2478c8;
+  --status-rejected-bg: #fdeded;
+  --status-rejected-text: #c0392b;
+  --payment-paid-bg: #e3f5ec;
+  --payment-paid-text: #1a7a4a;
+  --payment-notpaid-bg: #fdeded;
+  --payment-notpaid-text: #c0392b;
+
+  --radius-pill: 100vmax;
+  --radius: 1rem;
+  --radius-sm: 0.5rem;
+  --radius-xs: 0.25rem;
+
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.08);
+  --transition: 200ms ease;
+
+  --gutter: clamp(1rem, 4vw, 2rem);
+  --max-width: 90rem;
+}

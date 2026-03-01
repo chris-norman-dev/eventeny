@@ -1,0 +1,24 @@
+---
+interface Props {
+  src: string;
+  class?: string;
+  "aria-hidden"?: boolean | "true" | "false";
+  "aria-label"?: string;
+}
+
+const { src, class: className, ...attrs } = Astro.props;
+
+let svgContent = "";
+try {
+  const modules = import.meta.glob("/public/assets/*.svg", {
+    query: "?raw",
+    import: "default",
+    eager: true,
+  }) as Record<string, string>;
+  svgContent = modules[`/public/assets/${src}.svg`] ?? "";
+} catch {
+  svgContent = "";
+}
+---
+
+<span class={className} set:html={svgContent} {...attrs} />

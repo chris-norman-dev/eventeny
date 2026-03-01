@@ -1,0 +1,33 @@
+.invis {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  background: var(--teal);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-xs);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:focus {
+    top: 1rem;
+  }
+}
+
+.flush {
+  margin: 0;
+  padding: 0;
+}

@@ -1,0 +1,96 @@
+---
+---
+
+<nav class="Pagination" aria-label="Table pagination" id="pagination">
+  <button
+    class="Pagination__btn Pagination__btn--prev"
+    id="pagination-prev"
+    type="button"
+    aria-label="Previous page"
+    disabled
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  </button>
+  <div class="Pagination__pages" id="pagination-pages" role="list"></div>
+  <button
+    class="Pagination__btn Pagination__btn--next"
+    id="pagination-next"
+    type="button"
+    aria-label="Next page"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </button>
+  <span class="Pagination__info" id="pagination-info" aria-live="polite"></span>
+</nav>
+
+<style is:global>
+  .Pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+    padding: 0.5rem 0;
+  }
+
+  .Pagination__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-xs);
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    color: var(--dark);
+    transition: background var(--transition), border-color var(--transition);
+
+    &:hover:not(:disabled) {
+      background: var(--bg-page);
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .Pagination__pages {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .Pagination__page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-xs);
+    border: 1.5px solid transparent;
+    background: transparent;
+    font: 500 0.875rem / 1 var(--font);
+    color: var(--dark);
+    cursor: pointer;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+
+    &:hover {
+      background: var(--bg-page);
+      border-color: var(--border);
+    }
+
+    &[aria-current="page"] {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: var(--white);
+    }
+  }
+
+  .Pagination__info {
+    margin-left: auto;
+    font: 400 0.875rem / 1.5 var(--font);
+    color: var(--muted);
+  }
+</style>

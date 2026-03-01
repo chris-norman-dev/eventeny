@@ -1,0 +1,237 @@
+---
+import Layout from "@layouts/Layout.astro";
+import AppHeader from "@components/AppHeader.astro";
+import SearchInput from "@components/SearchInput.astro";
+import FilterDropdown from "@components/FilterDropdown.astro";
+import VendorTable from "@components/VendorTable.astro";
+import { vendors } from "@data/vendors";
+
+const totalVendors = vendors.length;
+const approved = vendors.filter((v) => v.status === "Approved").length;
+const awaiting = vendors.filter((v) => v.status === "Awaiting").length;
+const waitlisted = vendors.filter((v) => v.status === "Waitlisted").length;
+---
+
+<Layout title="Vendor Application Management">
+  <div class="App">
+    <AppHeader activePage="applications" />
+
+    <main class="AppMain" id="main">
+      <div class="AppMain__inner">
+        <div class="PageHeader">
+          <div class="PageHeader__text">
+            <h1 class="PageHeader__title">Vendor Applications</h1>
+            <p class="PageHeader__subtitle">Review, filter, and manage vendor submissions for your upcoming event.</p>
+          </div>
+        </div>
+
+        <div class="StatsRow" aria-label="Application statistics">
+          <div class="StatCard">
+            <span class="StatCard__value" id="stat-total">{totalVendors}</span>
+            <span class="StatCard__label">Total</span>
+          </div>
+          <div class="StatCard StatCard--approved">
+            <span class="StatCard__value" id="stat-approved">{approved}</span>
+            <span class="StatCard__label">Approved</span>
+          </div>
+          <div class="StatCard StatCard--awaiting">
+            <span class="StatCard__value" id="stat-awaiting">{awaiting}</span>
+            <span class="StatCard__label">Awaiting</span>
+          </div>
+          <div class="StatCard StatCard--waitlisted">
+            <span class="StatCard__value" id="stat-waitlisted">{waitlisted}</span>
+            <span class="StatCard__label">Waitlisted</span>
+          </div>
+        </div>
+
+        <div class="Toolbar">
+          <div class="Toolbar__search">
+            <SearchInput />
+          </div>
+          <div class="Toolbar__filter">
+            <FilterDropdown />
+          </div>
+          <span class="Toolbar__count" id="result-count" aria-live="polite">
+            {totalVendors} applications
+          </span>
+        </div>
+
+        <VendorTable />
+      </div>
+    </main>
+
+    <footer class="AppFooter">
+      <p>Eventeny Vendor Management &mdash; Take-Home Exercise</p>
+    </footer>
+  </div>
+</Layout>
+
+<style is:global>
+  .App {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+  }
+
+  .AppMain {
+    flex: 1;
+    padding: 1.5rem 0 2.5rem;
+  }
+
+  .AppMain__inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .PageHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .PageHeader__title {
+    font: 600 1.75rem / 1.2 var(--font);
+    color: var(--dark);
+  }
+
+  .PageHeader__subtitle {
+    font: 400 0.9375rem / 1.5 var(--font);
+    color: var(--muted);
+    margin-top: 0.25rem;
+    max-width: none;
+  }
+
+  .StatsRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .StatCard {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-left-width: 3px;
+    border-left-color: var(--border);
+  }
+
+  .StatCard--approved {
+    border-left-color: var(--status-approved-text);
+  }
+
+  .StatCard--awaiting {
+    border-left-color: var(--status-awaiting-text);
+  }
+
+  .StatCard--waitlisted {
+    border-left-color: var(--status-waitlisted-text);
+  }
+
+  .StatCard__value {
+    font: 700 1.75rem / 1 var(--font);
+    color: var(--dark);
+  }
+
+  .StatCard__label {
+    font: 400 0.75rem / 1 var(--font);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .Toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .Toolbar__search {
+    flex-shrink: 0;
+  }
+
+  .Toolbar__filter {
+    flex-shrink: 0;
+  }
+
+  .Toolbar__count {
+    margin-left: auto;
+    font: 400 0.875rem / 1.5 var(--font);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .AppFooter {
+    text-align: center;
+    padding: 1.25rem var(--gutter);
+    font: 400 0.8125rem / 1.5 var(--font);
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    background: var(--white);
+  }
+
+  @container root (max-width: 47.999rem) {
+    .StatsRow {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .Toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .Toolbar__search {
+      width: 100%;
+    }
+
+    .Toolbar__filter {
+      align-self: flex-start;
+    }
+
+    .Toolbar__count {
+      margin-left: 0;
+    }
+
+  }
+
+  @container root (max-width: 29.999rem) {
+    .StatsRow {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.625rem;
+    }
+
+    .StatCard {
+      padding: 0.75rem;
+    }
+
+    .StatCard__value {
+      font-size: 1.375rem;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener("vendor:filter", () => {
+    const countEl = document.getElementById("result-count");
+    if (!countEl) return;
+    setTimeout(() => {
+      const infoEl = document.getElementById("pagination-info");
+      const infoText = infoEl?.textContent ?? "";
+      const match = infoText.match(/of (\d+)/);
+      if (match) {
+        const total = Number(match[1]);
+        countEl.textContent = `${total} application${total !== 1 ? "s" : ""}`;
+      }
+    }, 200);
+  });
+</script>

@@ -1,0 +1,133 @@
+---
+---
+
+<div class="SearchInput" role="search">
+  <label class="invis" for="vendor-search">Search vendors</label>
+  <span class="SearchInput__icon" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  </span>
+  <input
+    id="vendor-search"
+    type="search"
+    class="SearchInput__field"
+    placeholder="Search by business, name, tag, etc"
+    autocomplete="off"
+    aria-controls="vendor-table-body"
+  />
+  <button
+    class="SearchInput__clear"
+    aria-label="Clear search"
+    type="button"
+    hidden
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+</div>
+
+<style is:global>
+  .SearchInput {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 0.5rem 0.25rem 0.5rem 0.75rem;
+    width: 20rem;
+    transition: border-color var(--transition), box-shadow var(--transition);
+
+    &:hover {
+      border-color: var(--teal);
+    }
+
+    &:focus-within {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px var(--teal-light);
+    }
+  }
+
+  .SearchInput__icon {
+    display: flex;
+    align-items: center;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .SearchInput__field {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font: var(--text-1, 400 1rem / 1.5 var(--font));
+    color: var(--dark);
+    min-width: 0;
+
+    &::placeholder {
+      color: var(--muted);
+    }
+
+    &::-webkit-search-cancel-button {
+      display: none;
+    }
+  }
+
+  .SearchInput__clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-xs);
+    color: var(--ui-icon);
+    flex-shrink: 0;
+    transition: background var(--transition);
+
+    &:hover {
+      background: var(--bg-page);
+    }
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  @media (max-width: 47.999rem) {
+    .SearchInput {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  const searchInput = document.getElementById(
+    "vendor-search"
+  ) as HTMLInputElement | null;
+  const clearBtn = document.querySelector(
+    ".SearchInput__clear"
+  ) as HTMLButtonElement | null;
+
+  let debounceTimer: ReturnType<typeof setTimeout>;
+
+  function dispatchFilter(query: string) {
+    document.dispatchEvent(
+      new CustomEvent("vendor:filter", {
+        detail: { query },
+        bubbles: true,
+      })
+    );
+  }
+
+  searchInput?.addEventListener("input", () => {
+    const val = searchInput.value;
+    clearBtn!.hidden = val.length === 0;
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => dispatchFilter(val.trim()), 300);
+  });
+
+  clearBtn?.addEventListener("click", () => {
+    searchInput!.value = "";
+    clearBtn.hidden = true;
+    searchInput!.focus();
+    dispatchFilter("");
+  });
+</script>

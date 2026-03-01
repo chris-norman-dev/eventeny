@@ -1,0 +1,487 @@
+---
+---
+
+<div class="FilterDropdown">
+  <button
+    class="FilterDropdown__trigger"
+    type="button"
+    aria-haspopup="dialog"
+    aria-expanded="false"
+    aria-controls="filter-panel"
+  >
+    <span class="FilterDropdown__trigger-icon" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4.25 5.61C6.27 8.2 10 13 10 13v6c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-6s3.72-4.8 5.74-7.39A.998.998 0 0 0 18.95 4H5.04a1 1 0 0 0-.79 1.61z"/></svg>
+    </span>
+    <span class="FilterDropdown__label">Filter</span>
+    <span class="FilterDropdown__badge" aria-live="polite" hidden>0</span>
+    <span class="FilterDropdown__caret" aria-hidden="true">
+      <svg class="icon-down" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      <svg class="icon-up" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    </span>
+  </button>
+
+  <div
+    id="filter-panel"
+    class="FilterDropdown__panel"
+    role="dialog"
+    aria-label="Filter vendor applications"
+    hidden
+  >
+    <div class="FilterDropdown__panel-inner">
+      <div class="FilterDropdown__section">
+        <label class="FilterDropdown__label-text" for="filter-app-type">Application type</label>
+        <div class="FilterDropdown__select-wrap">
+          <select id="filter-app-type" name="application-type" class="FilterDropdown__select">
+            <option value="">All applications</option>
+            <option value="Food & Beverage">Food &amp; Beverage</option>
+            <option value="Handmade Crafts">Handmade Crafts</option>
+            <option value="Jewelry">Jewelry</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Art">Art</option>
+            <option value="Plants & Garden">Plants &amp; Garden</option>
+            <option value="Wellness">Wellness</option>
+            <option value="Electronics">Electronics</option>
+          </select>
+          <span class="FilterDropdown__select-caret" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <fieldset class="FilterDropdown__section">
+        <legend class="FilterDropdown__label-text">Status</legend>
+        <div class="FilterDropdown__checkboxes FilterDropdown__checkboxes--grid">
+          {["Approved", "Waitlisted", "Withdrawn", "Awaiting", "Rejected"].map((s) => (
+            <label class="FilterDropdown__checkbox-label">
+              <input type="checkbox" name="status" value={s} class="FilterDropdown__checkbox" />
+              <span class="FilterDropdown__checkbox-custom" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              {s}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset class="FilterDropdown__section">
+        <legend class="FilterDropdown__label-text">Payment status</legend>
+        <div class="FilterDropdown__checkboxes">
+          {["Paid", "Not paid"].map((p) => (
+            <label class="FilterDropdown__checkbox-label">
+              <input type="checkbox" name="payment" value={p} class="FilterDropdown__checkbox" />
+              <span class="FilterDropdown__checkbox-custom" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              {p}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <div class="FilterDropdown__actions">
+        <button type="button" class="FilterDropdown__reset" id="filter-reset">Clear all</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="FilterDropdown__backdrop" id="filter-backdrop" hidden aria-hidden="true"></div>
+</div>
+
+<style is:global>
+  .FilterDropdown {
+    position: relative;
+  }
+
+  .FilterDropdown__trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 0.5rem 1rem;
+    font: 500 1rem / 1.5 var(--font);
+    color: var(--dark);
+    white-space: nowrap;
+    transition: border-color var(--transition), box-shadow var(--transition);
+
+    &:hover {
+      border-color: var(--teal);
+    }
+
+    &[aria-expanded="true"] {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px var(--teal-light);
+    }
+  }
+
+  .FilterDropdown__trigger-icon {
+    display: flex;
+    align-items: center;
+    color: var(--ui-icon);
+  }
+
+  .FilterDropdown__caret {
+    display: flex;
+    align-items: center;
+    color: var(--ui-icon);
+
+    .icon-up {
+      display: none;
+    }
+
+    .icon-down {
+      display: block;
+    }
+  }
+
+  .FilterDropdown__trigger[aria-expanded="true"] .FilterDropdown__caret {
+    .icon-up {
+      display: block;
+    }
+
+    .icon-down {
+      display: none;
+    }
+  }
+
+  .FilterDropdown__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.25rem;
+    background: var(--teal);
+    color: var(--white);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-pill);
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .FilterDropdown__panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    z-index: 200;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 18rem;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .FilterDropdown__panel-inner {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .FilterDropdown__section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .FilterDropdown__label-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--dark);
+  }
+
+  .FilterDropdown__select-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .FilterDropdown__select {
+    width: 100%;
+    appearance: none;
+    background: var(--bg-page);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    font: 400 0.9375rem / 1.5 var(--font);
+    color: var(--dark);
+    cursor: pointer;
+    transition: border-color var(--transition);
+
+    &:focus-visible {
+      border-color: var(--teal);
+      outline: 2px solid var(--teal);
+      outline-offset: 2px;
+    }
+
+    &:hover {
+      border-color: var(--teal);
+    }
+  }
+
+  .FilterDropdown__select-caret {
+    position: absolute;
+    right: 0.6rem;
+    pointer-events: none;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+  }
+
+  .FilterDropdown__checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &.FilterDropdown__checkboxes--grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem 1rem;
+    }
+  }
+
+  .FilterDropdown__checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font: 400 0.9375rem / 1.5 var(--font);
+    color: var(--dark);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .FilterDropdown__checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .FilterDropdown__checkbox-custom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-xs);
+    background: var(--white);
+    flex-shrink: 0;
+    transition: background var(--transition), border-color var(--transition);
+    color: transparent;
+  }
+
+  .FilterDropdown__checkbox:checked + .FilterDropdown__checkbox-custom {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: var(--white);
+  }
+
+  .FilterDropdown__checkbox:focus-visible + .FilterDropdown__checkbox-custom {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+  }
+
+  .FilterDropdown__actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .FilterDropdown__reset {
+    font: 500 0.875rem / 1.5 var(--font);
+    color: var(--teal);
+    padding: 0.25rem 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: var(--teal-hover);
+    }
+  }
+
+  .FilterDropdown__backdrop {
+    display: none;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  @media (max-width: 47.999rem) {
+    .FilterDropdown__panel {
+      position: fixed;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      border-radius: var(--radius) var(--radius) 0 0;
+      z-index: 300;
+      max-height: 85svh;
+      overflow-y: auto;
+    }
+
+    .FilterDropdown__backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 299;
+    }
+
+    .FilterDropdown__backdrop:not([hidden]) {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  const trigger = document.querySelector(
+    ".FilterDropdown__trigger"
+  ) as HTMLButtonElement | null;
+  const panel = document.getElementById("filter-panel") as HTMLElement | null;
+  const backdrop = document.getElementById(
+    "filter-backdrop"
+  ) as HTMLElement | null;
+  const resetBtn = document.getElementById("filter-reset") as HTMLButtonElement | null;
+  const badge = document.querySelector(
+    ".FilterDropdown__badge"
+  ) as HTMLElement | null;
+
+  let lastKey = "";
+
+  function openPanel() {
+    panel!.hidden = false;
+    if (backdrop) backdrop.hidden = false;
+    trigger!.setAttribute("aria-expanded", "true");
+    const firstFocusable = panel!.querySelector<HTMLElement>(
+      "select, input, button"
+    );
+    firstFocusable?.focus();
+  }
+
+  function closePanel() {
+    panel!.hidden = true;
+    if (backdrop) backdrop.hidden = true;
+    trigger!.setAttribute("aria-expanded", "false");
+    trigger!.focus();
+  }
+
+  function getActiveCount(): number {
+    const statusChecked = document.querySelectorAll<HTMLInputElement>(
+      'input[name="status"]:checked'
+    ).length;
+    const paymentChecked = document.querySelectorAll<HTMLInputElement>(
+      'input[name="payment"]:checked'
+    ).length;
+    const typeSelected = (
+      document.querySelector<HTMLSelectElement>("#filter-app-type")?.value ?? ""
+    ).length;
+    return statusChecked + paymentChecked + (typeSelected ? 1 : 0);
+  }
+
+  function updateBadge() {
+    const count = getActiveCount();
+    if (badge) {
+      badge.hidden = count === 0;
+      badge.textContent = String(count);
+    }
+  }
+
+  function dispatchFilters() {
+    const statuses = Array.from(
+      document.querySelectorAll<HTMLInputElement>('input[name="status"]:checked')
+    ).map((el) => el.value);
+    const payments = Array.from(
+      document.querySelectorAll<HTMLInputElement>(
+        'input[name="payment"]:checked'
+      )
+    ).map((el) => el.value);
+    const category =
+      document.querySelector<HTMLSelectElement>("#filter-app-type")?.value ?? "";
+
+    document.dispatchEvent(
+      new CustomEvent("vendor:filter", {
+        detail: { statuses, payments, category },
+        bubbles: true,
+      })
+    );
+    updateBadge();
+  }
+
+  trigger?.addEventListener("click", () => {
+    const isOpen = trigger.getAttribute("aria-expanded") === "true";
+    isOpen ? closePanel() : openPanel();
+  });
+
+  backdrop?.addEventListener("click", closePanel);
+
+  document.addEventListener("keydown", (e) => {
+    lastKey = e.key;
+    if (trigger?.getAttribute("aria-expanded") !== "true") return;
+    if (e.key === "Escape") {
+      closePanel();
+    }
+  });
+
+  panel?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const target = e.target as HTMLElement;
+      if (target instanceof HTMLInputElement && target.type === "checkbox") {
+        target.checked = !target.checked;
+        target.dispatchEvent(new Event("change", { bubbles: true }));
+        e.preventDefault();
+      }
+    }
+  });
+
+  panel?.addEventListener("focusout", () => {
+    if (window.innerWidth <= 768) return;
+    if (lastKey !== "Tab") return;
+    setTimeout(() => {
+      const active = document.activeElement;
+      if (!panel.contains(active) && !trigger?.contains(active)) {
+        closePanel();
+      }
+    }, 0);
+  });
+
+  document.addEventListener("click", (e) => {
+    const target = e.target as Node;
+    if (
+      trigger?.getAttribute("aria-expanded") === "true" &&
+      !panel?.contains(target) &&
+      !trigger.contains(target) &&
+      window.innerWidth > 768
+    ) {
+      closePanel();
+    }
+  });
+
+  panel?.addEventListener("change", dispatchFilters);
+
+  resetBtn?.addEventListener("click", () => {
+    document
+      .querySelectorAll<HTMLInputElement>(
+        'input[name="status"], input[name="payment"]'
+      )
+      .forEach((el) => (el.checked = false));
+    const sel = document.querySelector<HTMLSelectElement>("#filter-app-type");
+    if (sel) sel.value = "";
+    dispatchFilters();
+  });
+</script>

@@ -1,0 +1,971 @@
+---
+import { vendors } from "@data/vendors";
+import type { Vendor } from "@data/vendors";
+import StatusBadge from "@components/StatusBadge.astro";
+import BulkActionBar from "@components/BulkActionBar.astro";
+import Pagination from "@components/Pagination.astro";
+
+const PAGE_SIZE = 10;
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+---
+
+<div class="VendorTable" id="vendor-table">
+  <BulkActionBar />
+
+  <div
+    class="VendorTable__wrap"
+    role="region"
+    aria-label="Vendor applications"
+    tabindex="0"
+  >
+    <table
+      class="VendorTable__table"
+      id="vendor-table-main"
+      aria-label="Vendor applications"
+    >
+      <thead class="VendorTable__thead">
+        <tr>
+          <th scope="col" class="VendorTable__th VendorTable__th--check">
+            <input
+              type="checkbox"
+              id="select-all"
+              class="VendorTable__checkbox"
+              aria-label="Select all vendors"
+            />
+          </th>
+          <th
+            scope="col"
+            class="VendorTable__th VendorTable__th--sort"
+            data-sort-key="name"
+            aria-sort="none"
+          >
+            <button class="VendorTable__sort-btn" type="button">
+              Applicant Name
+              <span class="VendorTable__sort-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+              </span>
+            </button>
+          </th>
+          <th scope="col" class="VendorTable__th">Business Name</th>
+          <th scope="col" class="VendorTable__th VendorTable__th--category">Category</th>
+          <th scope="col" class="VendorTable__th VendorTable__th--status">Status</th>
+          <th scope="col" class="VendorTable__th VendorTable__th--payment">Payment</th>
+          <th
+            scope="col"
+            class="VendorTable__th VendorTable__th--sort VendorTable__th--date"
+            data-sort-key="appliedDate"
+            aria-sort="none"
+          >
+            <button class="VendorTable__sort-btn" type="button">
+              Applied
+              <span class="VendorTable__sort-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+              </span>
+            </button>
+          </th>
+          <th scope="col" class="VendorTable__th VendorTable__th--actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody
+        id="vendor-table-body"
+        class="VendorTable__tbody"
+        aria-live="polite"
+        aria-atomic="false"
+      >
+        {vendors.slice(0, PAGE_SIZE).map((v: Vendor) => (
+          <tr class="VendorTable__row" data-vendor-id={v.id}>
+            <td class="VendorTable__td VendorTable__td--check">
+              <input
+                type="checkbox"
+                class="VendorTable__checkbox VendorTable__row-check"
+                aria-label={`Select ${v.name}`}
+                data-vendor-id={v.id}
+              />
+            </td>
+            <td class="VendorTable__td VendorTable__td--name">
+              <a href={`/vendor/${v.id}`} class="VendorTable__name-link">
+                <span class="VendorTable__avatar" aria-hidden="true">
+                  {v.name.charAt(0)}
+                </span>
+                <span class="VendorTable__name-text">
+                  <span class="VendorTable__name">{v.name}</span>
+                  <span class="VendorTable__email">{v.email}</span>
+                </span>
+              </a>
+            </td>
+            <td class="VendorTable__td VendorTable__td--business">
+              {v.businessName}
+            </td>
+            <td class="VendorTable__td VendorTable__td--category">
+              {v.category}
+            </td>
+            <td class="VendorTable__td VendorTable__td--status">
+              <StatusBadge status={v.status} type="status" />
+            </td>
+            <td class="VendorTable__td VendorTable__td--payment">
+              <StatusBadge status={v.paymentStatus} type="payment" />
+            </td>
+            <td class="VendorTable__td VendorTable__td--date">
+              {formatDate(v.appliedDate)}
+            </td>
+            <td class="VendorTable__td VendorTable__td--actions">
+              <a
+                href={`/vendor/${v.id}`}
+                class="VendorTable__view-btn"
+                aria-label={`View application from ${v.name}`}
+              >
+                View
+              </a>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    <div class="VendorTable__empty" id="vendor-empty" hidden role="status">
+      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <p>No applications match your filters.</p>
+      <button type="button" id="clear-filters-btn" class="VendorTable__clear-filters">
+        Clear all filters
+      </button>
+    </div>
+
+    <div class="VendorTable__loading" id="vendor-loading" hidden aria-label="Loading results" role="status">
+      {Array.from({ length: 5 }).map(() => (
+        <div class="VendorTable__skeleton">
+          <div class="VendorTable__skeleton-check"></div>
+          <div class="VendorTable__skeleton-cell VendorTable__skeleton-cell--wide"></div>
+          <div class="VendorTable__skeleton-cell"></div>
+          <div class="VendorTable__skeleton-cell VendorTable__skeleton-cell--narrow"></div>
+          <div class="VendorTable__skeleton-cell VendorTable__skeleton-cell--narrow"></div>
+          <div class="VendorTable__skeleton-cell VendorTable__skeleton-cell--narrow"></div>
+          <div class="VendorTable__skeleton-cell VendorTable__skeleton-cell--narrow"></div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <Pagination />
+</div>
+
+<style is:global>
+  .VendorTable {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .VendorTable__wrap {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    background: var(--white);
+  }
+
+  .VendorTable__table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 52rem;
+  }
+
+  .VendorTable__thead {
+    border-bottom: 2px solid var(--border);
+  }
+
+  .VendorTable__th {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    font: 600 0.8125rem / 1.4 var(--font);
+    color: var(--muted);
+    white-space: nowrap;
+    background: var(--bg-page);
+
+    &:first-child {
+      border-radius: var(--radius) 0 0 0;
+    }
+
+    &:last-child {
+      border-radius: 0 var(--radius) 0 0;
+    }
+  }
+
+  .VendorTable__th--check {
+    width: 3rem;
+    padding-left: 1.25rem;
+  }
+
+  .VendorTable__th--category {
+    width: 10.5rem;
+  }
+
+  .VendorTable__th--status {
+    width: 6.5rem;
+  }
+
+  .VendorTable__th--payment {
+    width: 7rem;
+  }
+
+  .VendorTable__th--date {
+    width: 7.75rem;
+  }
+
+  .VendorTable__th--actions {
+    width: 5rem;
+    text-align: center;
+  }
+
+  .VendorTable__sort-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    border-radius: var(--radius-xs);
+    padding: 0.125rem 0;
+
+    &:hover {
+      color: var(--dark);
+    }
+  }
+
+  .VendorTable__sort-icon {
+    display: inline-flex;
+    align-items: center;
+    opacity: 0.4;
+    transition: opacity var(--transition), transform var(--transition);
+  }
+
+  .VendorTable__th[aria-sort="ascending"] .VendorTable__sort-icon {
+    opacity: 1;
+    color: var(--teal);
+  }
+
+  .VendorTable__th[aria-sort="descending"] .VendorTable__sort-icon {
+    opacity: 1;
+    color: var(--teal);
+    transform: rotate(180deg);
+  }
+
+  .VendorTable__tbody tr:last-child td:first-child {
+    border-radius: 0 0 0 var(--radius);
+  }
+
+  .VendorTable__tbody tr:last-child td:last-child {
+    border-radius: 0 0 var(--radius) 0;
+  }
+
+  .VendorTable__row {
+    border-bottom: 1px solid var(--border);
+    transition: background var(--transition);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: var(--bg-row-hover);
+    }
+
+    &.is-selected {
+      background: var(--bg-row-selected);
+    }
+  }
+
+  .VendorTable__td {
+    padding: 0.875rem 1rem;
+    font: 400 0.9375rem / 1.4 var(--font);
+    color: var(--dark);
+    vertical-align: middle;
+  }
+
+  .VendorTable__td--check {
+    padding-left: 1.25rem;
+    width: 3rem;
+  }
+
+  .VendorTable__td--actions {
+    text-align: center;
+  }
+
+  .VendorTable__checkbox {
+    width: 1.125rem;
+    height: 1.125rem;
+    accent-color: var(--teal);
+    cursor: pointer;
+    border-radius: var(--radius-xs);
+  }
+
+  .VendorTable__name-link {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    text-decoration: none;
+    color: inherit;
+
+    &:hover .VendorTable__name {
+      color: var(--teal);
+      text-decoration: underline;
+    }
+  }
+
+  .VendorTable__avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--teal-light);
+    color: var(--teal);
+    font: 600 0.875rem / 1 var(--font);
+    flex-shrink: 0;
+    text-transform: uppercase;
+    border: 1.5px solid var(--teal);
+  }
+
+  .VendorTable__name-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.0625rem;
+  }
+
+  .VendorTable__name {
+    font-weight: 500;
+    color: var(--dark);
+    transition: color var(--transition);
+  }
+
+  .VendorTable__email {
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .VendorTable__view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3125rem 0.75rem;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--border);
+    font: 500 0.8125rem / 1.4 var(--font);
+    color: var(--dark);
+    text-decoration: none;
+    white-space: nowrap;
+    background: var(--white);
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+
+    &:hover {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: var(--white);
+    }
+  }
+
+  .VendorTable__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--muted);
+
+    p {
+      font: 400 1rem / 1.5 var(--font);
+      max-width: none;
+    }
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .VendorTable__clear-filters {
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--teal);
+    color: var(--teal);
+    font: 500 0.875rem / 1.5 var(--font);
+    background: transparent;
+    cursor: pointer;
+    transition: background var(--transition), color var(--transition);
+
+    &:hover {
+      background: var(--teal);
+      color: var(--white);
+    }
+  }
+
+  .VendorTable__loading {
+    padding: 0.5rem 0;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .VendorTable__skeleton {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .VendorTable__skeleton-check {
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: var(--radius-xs);
+    background: var(--border);
+    flex-shrink: 0;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+  }
+
+  .VendorTable__skeleton-cell {
+    height: 0.875rem;
+    border-radius: var(--radius-xs);
+    background: var(--border);
+    flex: 1;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+
+    &.VendorTable__skeleton-cell--wide {
+      flex: 2;
+    }
+
+    &.VendorTable__skeleton-cell--narrow {
+      flex: 0.6;
+    }
+  }
+
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  @media (max-width: 47.999rem) {
+    .VendorTable__table {
+      min-width: 36rem;
+    }
+
+    .VendorTable__th--actions,
+    .VendorTable__td--actions {
+      display: none;
+    }
+  }
+
+  @media (max-width: 29.999rem) {
+    .VendorTable__wrap {
+      border-radius: var(--radius-sm);
+    }
+
+    .VendorTable__table {
+      display: none;
+    }
+
+    .VendorTable__loading {
+      display: none;
+    }
+  }
+
+  .VendorTable__cards {
+    display: none;
+
+    @media (max-width: 29.999rem) {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+  }
+
+  .VendorCard {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .VendorCard__header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    justify-content: space-between;
+  }
+
+  .VendorCard__identity {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+  }
+
+  .VendorCard__name {
+    font: 600 0.9375rem / 1.3 var(--font);
+    color: var(--dark);
+  }
+
+  .VendorCard__business {
+    font: 400 0.875rem / 1.4 var(--font);
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .VendorCard__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .VendorCard__category {
+    font: 400 0.8125rem / 1.4 var(--font);
+    color: var(--muted);
+  }
+
+  .VendorCard__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .VendorCard__date {
+    font: 400 0.8125rem / 1.4 var(--font);
+    color: var(--muted);
+  }
+</style>
+
+<script>
+  import { vendors } from "@data/vendors";
+  import type { Vendor } from "@data/vendors";
+
+  const PAGE_SIZE = 10;
+
+  type SortKey = "name" | "appliedDate";
+  type SortDir = "asc" | "desc" | "none";
+
+  interface FilterState {
+    query: string;
+    statuses: string[];
+    payments: string[];
+    category: string;
+  }
+
+  let currentFilters: FilterState = {
+    query: "",
+    statuses: [],
+    payments: [],
+    category: "",
+  };
+
+  let sortKey: SortKey | null = null;
+  let sortDir: SortDir = "none";
+  let currentPage = 1;
+  let filteredVendors: Vendor[] = [...vendors];
+  let selectedIds = new Set<string>();
+
+  function formatDate(iso: string): string {
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  function applyFilters() {
+    const { query, statuses, payments, category } = currentFilters;
+    filteredVendors = vendors.filter((v) => {
+      const q = query.toLowerCase();
+      const matchesQuery =
+        !q ||
+        v.name.toLowerCase().includes(q) ||
+        v.businessName.toLowerCase().includes(q) ||
+        v.email.toLowerCase().includes(q) ||
+        v.tags.some((t) => t.toLowerCase().includes(q));
+      const matchesStatus =
+        statuses.length === 0 || statuses.includes(v.status);
+      const matchesPayment =
+        payments.length === 0 || payments.includes(v.paymentStatus);
+      const matchesCategory = !category || v.category === category;
+      return matchesQuery && matchesStatus && matchesPayment && matchesCategory;
+    });
+
+    if (sortKey && sortDir !== "none") {
+      applySorting();
+    }
+
+    currentPage = 1;
+    selectedIds.clear();
+    renderTable();
+    updateBulkBar();
+  }
+
+  function applySorting() {
+    if (!sortKey) return;
+    const k = sortKey;
+    const dir = sortDir === "asc" ? 1 : -1;
+    filteredVendors.sort((a, b) => {
+      const av = a[k];
+      const bv = b[k];
+      return av < bv ? -dir : av > bv ? dir : 0;
+    });
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById("vendor-table-body");
+    const empty = document.getElementById("vendor-empty");
+    const loading = document.getElementById("vendor-loading");
+    const table = document.getElementById("vendor-table-main");
+    const cardsEl = document.getElementById("vendor-cards");
+
+    if (!tbody) return;
+
+    if (loading) loading.hidden = false;
+    if (table) table.setAttribute("aria-busy", "true");
+
+    setTimeout(() => {
+      if (loading) loading.hidden = true;
+      if (table) table.removeAttribute("aria-busy");
+
+      const total = filteredVendors.length;
+      const start = (currentPage - 1) * PAGE_SIZE;
+      const pageItems = filteredVendors.slice(start, start + PAGE_SIZE);
+
+      if (total === 0) {
+        tbody.innerHTML = "";
+        if (empty) empty.hidden = false;
+        if (cardsEl) cardsEl.innerHTML = "";
+      } else {
+        if (empty) empty.hidden = true;
+        tbody.innerHTML = pageItems.map((v) => buildRow(v)).join("");
+        if (cardsEl) cardsEl.innerHTML = pageItems.map((v) => buildCard(v)).join("");
+        attachRowListeners();
+      }
+
+      renderPagination(total);
+    }, 120);
+  }
+
+  function buildRow(v: Vendor): string {
+    const statusClass = v.status.toLowerCase();
+    const paymentKey = v.paymentStatus === "Paid" ? "paid" : "notpaid";
+    const isSelected = selectedIds.has(v.id);
+    return `<tr class="VendorTable__row${isSelected ? " is-selected" : ""}" data-vendor-id="${v.id}">
+  <td class="VendorTable__td VendorTable__td--check">
+    <input type="checkbox" class="VendorTable__checkbox VendorTable__row-check" aria-label="Select ${escHtml(v.name)}" data-vendor-id="${v.id}"${isSelected ? " checked" : ""} />
+  </td>
+  <td class="VendorTable__td VendorTable__td--name">
+    <a href="/vendor/${v.id}" class="VendorTable__name-link">
+      <span class="VendorTable__avatar" aria-hidden="true">${escHtml(v.name.charAt(0))}</span>
+      <span class="VendorTable__name-text">
+        <span class="VendorTable__name">${escHtml(v.name)}</span>
+        <span class="VendorTable__email">${escHtml(v.email)}</span>
+      </span>
+    </a>
+  </td>
+  <td class="VendorTable__td VendorTable__td--business">${escHtml(v.businessName)}</td>
+  <td class="VendorTable__td VendorTable__td--category">${escHtml(v.category)}</td>
+  <td class="VendorTable__td VendorTable__td--status">
+    <span class="StatusBadge StatusBadge--${statusClass}">${escHtml(v.status)}</span>
+  </td>
+  <td class="VendorTable__td VendorTable__td--payment">
+    <span class="StatusBadge StatusBadge--${paymentKey}">${escHtml(v.paymentStatus)}</span>
+  </td>
+  <td class="VendorTable__td VendorTable__td--date">${formatDate(v.appliedDate)}</td>
+  <td class="VendorTable__td VendorTable__td--actions">
+    <a href="/vendor/${v.id}" class="VendorTable__view-btn" aria-label="View application from ${escHtml(v.name)}">View</a>
+  </td>
+</tr>`;
+  }
+
+  function buildCard(v: Vendor): string {
+    const statusClass = v.status.toLowerCase();
+    const paymentKey = v.paymentStatus === "Paid" ? "paid" : "notpaid";
+    return `<div class="VendorCard">
+  <div class="VendorCard__header">
+    <div class="VendorCard__identity">
+      <span class="VendorTable__avatar" aria-hidden="true">${escHtml(v.name.charAt(0))}</span>
+      <div>
+        <div class="VendorCard__name">${escHtml(v.name)}</div>
+        <div class="VendorCard__business">${escHtml(v.businessName)}</div>
+      </div>
+    </div>
+    <span class="StatusBadge StatusBadge--${statusClass}">${escHtml(v.status)}</span>
+  </div>
+  <div class="VendorCard__meta">
+    <span class="VendorCard__category">${escHtml(v.category)}</span>
+    <span class="StatusBadge StatusBadge--${paymentKey}">${escHtml(v.paymentStatus)}</span>
+  </div>
+  <div class="VendorCard__footer">
+    <span class="VendorCard__date">Applied ${formatDate(v.appliedDate)}</span>
+    <a href="/vendor/${v.id}" class="VendorTable__view-btn">View</a>
+  </div>
+</div>`;
+  }
+
+  function escHtml(s: string): string {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function attachRowListeners() {
+    document.querySelectorAll<HTMLInputElement>(".VendorTable__row-check").forEach((cb) => {
+      cb.addEventListener("change", () => {
+        const id = cb.dataset.vendorId ?? "";
+        if (cb.checked) {
+          selectedIds.add(id);
+          cb.closest("tr")?.classList.add("is-selected");
+        } else {
+          selectedIds.delete(id);
+          cb.closest("tr")?.classList.remove("is-selected");
+        }
+        syncSelectAll();
+        updateBulkBar();
+      });
+    });
+  }
+
+  function syncSelectAll() {
+    const allCheckboxes = document.querySelectorAll<HTMLInputElement>(".VendorTable__row-check");
+    const checkedCount = document.querySelectorAll<HTMLInputElement>(".VendorTable__row-check:checked").length;
+    const selectAll = document.getElementById("select-all") as HTMLInputElement | null;
+    if (!selectAll) return;
+    selectAll.indeterminate = checkedCount > 0 && checkedCount < allCheckboxes.length;
+    selectAll.checked = checkedCount > 0 && checkedCount === allCheckboxes.length;
+  }
+
+  function updateBulkBar() {
+    const bar = document.getElementById("bulk-action-bar");
+    const count = document.getElementById("bulk-selected-count");
+    if (!bar || !count) return;
+    bar.hidden = selectedIds.size === 0;
+    count.textContent = String(selectedIds.size);
+  }
+
+  function renderPagination(total: number) {
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    const prevBtn = document.getElementById("pagination-prev") as HTMLButtonElement | null;
+    const nextBtn = document.getElementById("pagination-next") as HTMLButtonElement | null;
+    const pagesEl = document.getElementById("pagination-pages");
+    const infoEl = document.getElementById("pagination-info");
+
+    if (prevBtn) prevBtn.disabled = currentPage <= 1;
+    if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+
+    if (pagesEl) {
+      const pages: string[] = [];
+      for (let i = 1; i <= totalPages; i++) {
+        const isCurrent = i === currentPage;
+        pages.push(
+          `<button type="button" class="Pagination__page" ${isCurrent ? 'aria-current="page"' : ""} data-page="${i}" role="listitem">${i}</button>`
+        );
+      }
+      pagesEl.innerHTML = pages.join("");
+
+      pagesEl.querySelectorAll<HTMLButtonElement>(".Pagination__page").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          currentPage = Number(btn.dataset.page);
+          renderTable();
+        });
+      });
+    }
+
+    if (infoEl) {
+      const start = Math.min((currentPage - 1) * PAGE_SIZE + 1, total);
+      const end = Math.min(currentPage * PAGE_SIZE, total);
+      infoEl.textContent = total > 0 ? `${start}–${end} of ${total}` : "0 results";
+    }
+  }
+
+  function updateStatCards() {
+    const total = vendors.length;
+    const approvedCount = vendors.filter((v) => v.status === "Approved").length;
+    const awaitingCount = vendors.filter((v) => v.status === "Awaiting").length;
+    const waitlistedCount = vendors.filter((v) => v.status === "Waitlisted").length;
+    const totalEl = document.getElementById("stat-total");
+    const approvedEl = document.getElementById("stat-approved");
+    const awaitingEl = document.getElementById("stat-awaiting");
+    const waitlistedEl = document.getElementById("stat-waitlisted");
+    if (totalEl) totalEl.textContent = String(total);
+    if (approvedEl) approvedEl.textContent = String(approvedCount);
+    if (awaitingEl) awaitingEl.textContent = String(awaitingCount);
+    if (waitlistedEl) waitlistedEl.textContent = String(waitlistedCount);
+  }
+
+  function exportCSV() {
+    const rows = filteredVendors.filter((v) => selectedIds.has(v.id));
+    const headers = ["Name", "Business", "Email", "Phone", "Category", "Status", "Payment", "Applied Date"];
+    const lines = [
+      headers.join(","),
+      ...rows.map((v) =>
+        [
+          `"${v.name}"`,
+          `"${v.businessName}"`,
+          `"${v.email}"`,
+          `"${v.phone}"`,
+          `"${v.category}"`,
+          `"${v.status}"`,
+          `"${v.paymentStatus}"`,
+          `"${v.appliedDate}"`,
+        ].join(",")
+      ),
+    ];
+    const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `vendor-applications-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  document.addEventListener("vendor:filter", (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    if ("query" in detail) currentFilters.query = detail.query as string;
+    if ("statuses" in detail) {
+      currentFilters.statuses = detail.statuses as string[];
+      currentFilters.payments = detail.payments as string[];
+      currentFilters.category = detail.category as string;
+    }
+    applyFilters();
+  });
+
+  document.getElementById("select-all")?.addEventListener("change", (e) => {
+    const cb = e.target as HTMLInputElement;
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = filteredVendors.slice(start, start + PAGE_SIZE);
+    pageItems.forEach((v) => {
+      if (cb.checked) selectedIds.add(v.id);
+      else selectedIds.delete(v.id);
+    });
+    document.querySelectorAll<HTMLInputElement>(".VendorTable__row-check").forEach((box) => {
+      box.checked = cb.checked;
+      box.closest("tr")?.classList.toggle("is-selected", cb.checked);
+    });
+    updateBulkBar();
+  });
+
+  document.querySelectorAll<HTMLElement>(".VendorTable__th--sort").forEach((th) => {
+    th.querySelector<HTMLButtonElement>(".VendorTable__sort-btn")?.addEventListener("click", () => {
+      const key = th.dataset.sortKey as SortKey;
+      if (sortKey === key) {
+        sortDir = sortDir === "asc" ? "desc" : sortDir === "desc" ? "none" : "asc";
+      } else {
+        sortKey = key;
+        sortDir = "asc";
+      }
+
+      document.querySelectorAll<HTMLElement>(".VendorTable__th--sort").forEach((t) => {
+        if (t.dataset.sortKey === key) {
+          t.setAttribute("aria-sort", sortDir === "none" ? "none" : sortDir === "asc" ? "ascending" : "descending");
+        } else {
+          t.setAttribute("aria-sort", "none");
+        }
+      });
+
+      if (sortDir === "none") sortKey = null;
+      applyFilters();
+    });
+  });
+
+  document.getElementById("pagination-prev")?.addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderTable();
+    }
+  });
+
+  document.getElementById("pagination-next")?.addEventListener("click", () => {
+    const total = filteredVendors.length;
+    if (currentPage < Math.ceil(total / PAGE_SIZE)) {
+      currentPage++;
+      renderTable();
+    }
+  });
+
+  document.getElementById("bulk-export")?.addEventListener("click", exportCSV);
+
+  document.getElementById("bulk-approve")?.addEventListener("click", () => {
+    selectedIds.forEach((id) => {
+      const v = vendors.find((x) => x.id === id);
+      if (v) v.status = "Approved";
+    });
+    selectedIds.clear();
+    applyFilters();
+    updateBulkBar();
+    updateStatCards();
+  });
+
+  document.getElementById("bulk-reject")?.addEventListener("click", () => {
+    selectedIds.forEach((id) => {
+      const v = vendors.find((x) => x.id === id);
+      if (v) v.status = "Rejected";
+    });
+    selectedIds.clear();
+    applyFilters();
+    updateBulkBar();
+    updateStatCards();
+  });
+
+  document.getElementById("bulk-clear")?.addEventListener("click", () => {
+    selectedIds.clear();
+    document.querySelectorAll<HTMLInputElement>(".VendorTable__row-check").forEach((cb) => {
+      cb.checked = false;
+      cb.closest("tr")?.classList.remove("is-selected");
+    });
+    const selectAll = document.getElementById("select-all") as HTMLInputElement | null;
+    if (selectAll) {
+      selectAll.checked = false;
+      selectAll.indeterminate = false;
+    }
+    updateBulkBar();
+  });
+
+  document.getElementById("clear-filters-btn")?.addEventListener("click", () => {
+    const searchInput = document.getElementById("vendor-search") as HTMLInputElement | null;
+    if (searchInput) {
+      searchInput.value = "";
+      const clearBtn = document.querySelector(".SearchInput__clear") as HTMLButtonElement | null;
+      if (clearBtn) clearBtn.hidden = true;
+    }
+    document.querySelectorAll<HTMLInputElement>('input[name="status"], input[name="payment"]').forEach((el) => (el.checked = false));
+    const sel = document.querySelector<HTMLSelectElement>("#filter-app-type");
+    if (sel) sel.value = "";
+    const badge = document.querySelector<HTMLElement>(".FilterDropdown__badge");
+    if (badge) badge.hidden = true;
+    currentFilters = { query: "", statuses: [], payments: [], category: "" };
+    applyFilters();
+  });
+
+  const cardsContainer = document.createElement("div");
+  cardsContainer.id = "vendor-cards";
+  cardsContainer.className = "VendorTable__cards";
+  const wrap = document.querySelector(".VendorTable__wrap");
+  if (wrap) wrap.after(cardsContainer);
+
+  const savedOverrides = JSON.parse(localStorage.getItem("vendor-status-overrides") ?? "{}") as Record<string, string>;
+  vendors.forEach((v) => {
+    if (savedOverrides[v.id]) v.status = savedOverrides[v.id] as Vendor["status"];
+  });
+
+  renderPagination(vendors.length);
+  attachRowListeners();
+  updateStatCards();
+</script>

@@ -1,0 +1,704 @@
+---
+import Layout from "@layouts/Layout.astro";
+import AppHeader from "@components/AppHeader.astro";
+import StatusBadge from "@components/StatusBadge.astro";
+import { vendors } from "@data/vendors";
+import type { Vendor, VendorStatus } from "@data/vendors";
+
+export function getStaticPaths() {
+  return vendors.map((v) => ({ params: { id: v.id } }));
+}
+
+const { id } = Astro.params;
+const vendor = vendors.find((v) => v.id === id) as Vendor;
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+const statusHistory: { status: VendorStatus; date: string; note: string }[] = [
+  {
+    status: "Awaiting",
+    date: vendor.appliedDate,
+    note: "Application received.",
+  },
+];
+
+if (vendor.status !== "Awaiting") {
+  const reviewDate = new Date(vendor.appliedDate);
+  reviewDate.setDate(reviewDate.getDate() + 5);
+  statusHistory.push({
+    status: vendor.status,
+    date: reviewDate.toISOString().slice(0, 10),
+    note:
+      vendor.status === "Approved"
+        ? "Application approved by organizer."
+        : vendor.status === "Rejected"
+          ? "Application did not meet event requirements."
+          : vendor.status === "Waitlisted"
+            ? "Placed on waitlist pending space availability."
+            : vendor.status === "Withdrawn"
+              ? "Vendor withdrew their application."
+              : "",
+  });
+}
+---
+
+<Layout
+  title={`${vendor.name} — ${vendor.businessName}`}
+  description={`Vendor application from ${vendor.businessName}`}
+>
+  <div class="ProfileApp">
+    <AppHeader />
+
+    <main class="ProfileMain" id="main">
+      <div class="ProfileMain__inner">
+        <nav class="Breadcrumb" aria-label="Breadcrumb">
+          <ol class="Breadcrumb__list">
+            <li><a href="/" class="Breadcrumb__link">Applications</a></li>
+            <li aria-hidden="true" class="Breadcrumb__sep">›</li>
+            <li class="Breadcrumb__current" aria-current="page">{vendor.businessName}</li>
+          </ol>
+        </nav>
+
+        <div class="Profile">
+          <div class="Profile__main">
+            <div class="ProfileCard">
+              <div class="ProfileCard__header">
+                <div class="ProfileCard__identity">
+                  <div class="ProfileCard__avatar" aria-hidden="true">
+                    {vendor.name.charAt(0)}
+                  </div>
+                  <div class="ProfileCard__names">
+                    <h1 class="ProfileCard__name">{vendor.name}</h1>
+                    <p class="ProfileCard__business">{vendor.businessName}</p>
+                  </div>
+                </div>
+                <div class="ProfileCard__status-group" id="profile-status-group">
+                  <span id="profile-status-wrap"><StatusBadge status={vendor.status} type="status" /></span>
+                  <StatusBadge status={vendor.paymentStatus} type="payment" />
+                </div>
+              </div>
+
+              <div class="ProfileCard__meta">
+                <div class="ProfileCard__meta-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  <a href={`mailto:${vendor.email}`} class="ProfileCard__meta-link">{vendor.email}</a>
+                </div>
+                <div class="ProfileCard__meta-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.64 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.55 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 17.15z"/></svg>
+                  <span>{vendor.phone}</span>
+                </div>
+                {vendor.website && (
+                  <div class="ProfileCard__meta-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <a href={vendor.website} target="_blank" rel="noopener noreferrer" class="ProfileCard__meta-link">{vendor.website.replace("https://", "")}</a>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div class="InfoSection">
+              <h2 class="InfoSection__title">About the Business</h2>
+              <p class="InfoSection__body">{vendor.description}</p>
+              <div class="InfoSection__tags">
+                {vendor.tags.map((tag) => (
+                  <span class="Tag">{tag}</span>
+                ))}
+              </div>
+            </div>
+
+            <div class="InfoSection">
+              <h2 class="InfoSection__title">Application Details</h2>
+              <dl class="DetailsGrid">
+                <div class="DetailsGrid__item">
+                  <dt>Category</dt>
+                  <dd>{vendor.category}</dd>
+                </div>
+                <div class="DetailsGrid__item">
+                  <dt>Applied On</dt>
+                  <dd>{formatDate(vendor.appliedDate)}</dd>
+                </div>
+                <div class="DetailsGrid__item">
+                  <dt>Years in Business</dt>
+                  <dd>{vendor.yearsInBusiness}</dd>
+                </div>
+                <div class="DetailsGrid__item">
+                  <dt>Booth Size</dt>
+                  <dd>{vendor.boothSize}</dd>
+                </div>
+                {vendor.boothNumber && (
+                  <div class="DetailsGrid__item">
+                    <dt>Booth Number</dt>
+                    <dd>{vendor.boothNumber}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+
+            <div class="InfoSection">
+              <h2 class="InfoSection__title">Status History</h2>
+              <ol class="Timeline">
+                {statusHistory.map((entry, i) => (
+                  <li class={`Timeline__item${i === statusHistory.length - 1 ? " Timeline__item--last" : ""}`}>
+                    <div class="Timeline__dot" aria-hidden="true"></div>
+                    <div class="Timeline__content">
+                      <div class="Timeline__header">
+                        <StatusBadge status={entry.status} type="status" />
+                        <time class="Timeline__date" datetime={entry.date}>{formatDate(entry.date)}</time>
+                      </div>
+                      <p class="Timeline__note">{entry.note}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+
+          <aside class="Profile__sidebar">
+            <div class="ActionCard">
+              <h2 class="ActionCard__title">Quick Actions</h2>
+              <div class="ActionCard__buttons">
+                <button
+                  type="button"
+                  class="ActionCard__btn ActionCard__btn--approve"
+                  data-action="approve"
+                  data-vendor-id={vendor.id}
+                >
+                  Approve
+                </button>
+                <button
+                  type="button"
+                  class="ActionCard__btn ActionCard__btn--waitlist"
+                  data-action="waitlist"
+                  data-vendor-id={vendor.id}
+                >
+                  Waitlist
+                </button>
+                <button
+                  type="button"
+                  class="ActionCard__btn ActionCard__btn--reject"
+                  data-action="reject"
+                  data-vendor-id={vendor.id}
+                >
+                  Reject
+                </button>
+              </div>
+              <div class="ActionCard__status" id="action-status" aria-live="polite" hidden></div>
+            </div>
+
+            <div class="SummaryCard">
+              <h2 class="SummaryCard__title">Application Summary</h2>
+              <dl class="SummaryCard__list">
+                <div class="SummaryCard__item">
+                  <dt>Current Status</dt>
+                  <dd id="summary-status-wrap"><StatusBadge status={vendor.status} type="status" /></dd>
+                </div>
+                <div class="SummaryCard__item">
+                  <dt>Payment</dt>
+                  <dd><StatusBadge status={vendor.paymentStatus} type="payment" /></dd>
+                </div>
+                <div class="SummaryCard__item">
+                  <dt>Category</dt>
+                  <dd>{vendor.category}</dd>
+                </div>
+                <div class="SummaryCard__item">
+                  <dt>Applied</dt>
+                  <dd>{formatDate(vendor.appliedDate)}</dd>
+                </div>
+              </dl>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer class="AppFooter">
+      <p>Eventeny Vendor Management &mdash; Take-Home Exercise</p>
+    </footer>
+  </div>
+</Layout>
+
+<style is:global>
+  .ProfileApp {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+  }
+
+  .ProfileMain {
+    flex: 1;
+    padding: 1.5rem 0 2.5rem;
+  }
+
+  .ProfileMain__inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .Breadcrumb__list {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+  }
+
+  .Breadcrumb__link {
+    font: 400 0.9375rem / 1.5 var(--font);
+    color: var(--teal);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .Breadcrumb__sep {
+    color: var(--muted);
+    font-size: 1rem;
+  }
+
+  .Breadcrumb__current {
+    font: 400 0.9375rem / 1.5 var(--font);
+    color: var(--muted);
+  }
+
+  .Profile {
+    display: grid;
+    grid-template-columns: 1fr 18rem;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .Profile__main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .Profile__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    position: sticky;
+    top: 5rem;
+  }
+
+  .ProfileCard {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ProfileCard__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .ProfileCard__identity {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .ProfileCard__avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: var(--teal-light);
+    color: var(--teal);
+    font: 700 1.5rem / 1 var(--font);
+    flex-shrink: 0;
+    text-transform: uppercase;
+    border: 2px solid var(--teal);
+  }
+
+  .ProfileCard__name {
+    font: 600 1.375rem / 1.2 var(--font);
+    color: var(--dark);
+  }
+
+  .ProfileCard__business {
+    font: 400 0.9375rem / 1.4 var(--font);
+    color: var(--muted);
+    margin-top: 0.125rem;
+    max-width: none;
+  }
+
+  .ProfileCard__status-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .ProfileCard__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+
+  .ProfileCard__meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font: 400 0.9375rem / 1.4 var(--font);
+    color: var(--muted);
+  }
+
+  .ProfileCard__meta-link {
+    color: var(--teal);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .InfoSection {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .InfoSection__title {
+    font: 600 1rem / 1.3 var(--font);
+    color: var(--dark);
+  }
+
+  .InfoSection__body {
+    font: 400 0.9375rem / 1.6 var(--font);
+    color: var(--dark);
+    max-width: none;
+  }
+
+  .InfoSection__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-top: 0.25rem;
+  }
+
+  .Tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-pill);
+    background: var(--bg-page);
+    border: 1px solid var(--border);
+    font: 400 0.8125rem / 1.4 var(--font);
+    color: var(--muted);
+  }
+
+  .DetailsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    gap: 1rem;
+  }
+
+  .DetailsGrid__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    dt {
+      font: 400 0.75rem / 1 var(--font);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    dd {
+      font: 500 0.9375rem / 1.4 var(--font);
+      color: var(--dark);
+    }
+  }
+
+  .Timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .Timeline__item {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0.4375rem;
+      top: 1rem;
+      bottom: 0;
+      width: 1.5px;
+      background: var(--border);
+    }
+
+    &.Timeline__item--last::before {
+      display: none;
+    }
+  }
+
+  .Timeline__dot {
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 50%;
+    background: var(--teal);
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+    border: 2px solid var(--white);
+    box-shadow: 0 0 0 1.5px var(--teal);
+  }
+
+  .Timeline__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .Timeline__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.375rem;
+  }
+
+  .Timeline__date {
+    font: 400 0.8125rem / 1.4 var(--font);
+    color: var(--muted);
+  }
+
+  .Timeline__note {
+    font: 400 0.9375rem / 1.5 var(--font);
+    color: var(--dark);
+    max-width: none;
+  }
+
+  .ActionCard {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ActionCard__title {
+    font: 600 1rem / 1.3 var(--font);
+    color: var(--dark);
+  }
+
+  .ActionCard__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ActionCard__btn {
+    padding: 0.625rem 1rem;
+    border-radius: var(--radius-sm);
+    font: 500 0.9375rem / 1.5 var(--font);
+    border: 1.5px solid transparent;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+    text-align: center;
+
+    &:is(.ActionCard__btn--approve) {
+      background: var(--status-approved-bg);
+      color: var(--status-approved-text);
+      border-color: var(--status-approved-text);
+
+      &:hover, &[aria-pressed="true"] {
+        background: var(--status-approved-text);
+        color: var(--white);
+      }
+    }
+
+    &:is(.ActionCard__btn--waitlist) {
+      background: var(--status-waitlisted-bg);
+      color: var(--status-waitlisted-text);
+      border-color: var(--status-waitlisted-text);
+
+      &:hover, &[aria-pressed="true"] {
+        background: var(--status-waitlisted-text);
+        color: var(--white);
+      }
+    }
+
+    &:is(.ActionCard__btn--reject) {
+      background: var(--status-rejected-bg);
+      color: var(--status-rejected-text);
+      border-color: var(--status-rejected-text);
+
+      &:hover, &[aria-pressed="true"] {
+        background: var(--status-rejected-text);
+        color: var(--white);
+      }
+    }
+  }
+
+  .ActionCard__status {
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-xs);
+    background: var(--status-approved-bg);
+    color: var(--status-approved-text);
+    font: 400 0.875rem / 1.4 var(--font);
+    text-align: center;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .SummaryCard {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+
+  .SummaryCard__title {
+    font: 600 1rem / 1.3 var(--font);
+    color: var(--dark);
+    margin-bottom: 0.875rem;
+  }
+
+  .SummaryCard__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .SummaryCard__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font: 400 0.875rem / 1.4 var(--font);
+
+    dt {
+      color: var(--muted);
+    }
+
+    dd {
+      font-weight: 500;
+      color: var(--dark);
+      text-align: right;
+    }
+  }
+
+  @container root (max-width: 55.999rem) {
+    .Profile {
+      grid-template-columns: 1fr;
+    }
+
+    .Profile__sidebar {
+      position: static;
+    }
+  }
+
+  @container root (max-width: 29.999rem) {
+    .ProfileCard__header {
+      flex-direction: column;
+    }
+
+    .ProfileCard__identity {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<script>
+  const ACTION_STATUS: Record<string, string> = {
+    approve: "Approved",
+    waitlist: "Waitlisted",
+    reject: "Rejected",
+  };
+
+  const ACTION_MSG: Record<string, string> = {
+    approve: "Application approved.",
+    waitlist: "Application waitlisted.",
+    reject: "Application rejected.",
+  };
+
+  function badgeHtml(status: string): string {
+    return `<span class="StatusBadge StatusBadge--${status.toLowerCase()}">${status}</span>`;
+  }
+
+  function setActiveButton(action: string) {
+    document.querySelectorAll<HTMLButtonElement>(".ActionCard__btn").forEach((b) => {
+      b.setAttribute("aria-pressed", b.dataset.action === action ? "true" : "false");
+    });
+  }
+
+  function applyStatus(status: string) {
+    const profileWrap = document.getElementById("profile-status-wrap");
+    const summaryWrap = document.getElementById("summary-status-wrap");
+    if (profileWrap) profileWrap.innerHTML = badgeHtml(status);
+    if (summaryWrap) summaryWrap.innerHTML = badgeHtml(status);
+  }
+
+  const vendorId = document.querySelector<HTMLButtonElement>(".ActionCard__btn")?.dataset.vendorId ?? "";
+
+  const overrides = JSON.parse(localStorage.getItem("vendor-status-overrides") ?? "{}") as Record<string, string>;
+  if (overrides[vendorId]) {
+    applyStatus(overrides[vendorId]);
+    const activeAction = Object.entries(ACTION_STATUS).find(([, s]) => s === overrides[vendorId])?.[0];
+    if (activeAction) setActiveButton(activeAction);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>(".ActionCard__btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.action ?? "";
+      const newStatus = ACTION_STATUS[action];
+      if (!newStatus) return;
+
+      applyStatus(newStatus);
+      setActiveButton(action);
+
+      const saved = JSON.parse(localStorage.getItem("vendor-status-overrides") ?? "{}") as Record<string, string>;
+      saved[vendorId] = newStatus;
+      localStorage.setItem("vendor-status-overrides", JSON.stringify(saved));
+
+      const statusEl = document.getElementById("action-status");
+      if (statusEl) {
+        statusEl.hidden = false;
+        statusEl.textContent = ACTION_MSG[action];
+        statusEl.style.background =
+          action === "approve" ? "var(--status-approved-bg)"
+          : action === "reject" ? "var(--status-rejected-bg)"
+          : "var(--status-waitlisted-bg)";
+        statusEl.style.color =
+          action === "approve" ? "var(--status-approved-text)"
+          : action === "reject" ? "var(--status-rejected-text)"
+          : "var(--status-waitlisted-text)";
+      }
+    });
+  });
+</script>
