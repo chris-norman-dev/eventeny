@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   site: 'https://chris-norman-dev.github.io',
-  base: '/eventeny',
+  base: '/eventeny/',
   build: {
     format: 'file',
   },
